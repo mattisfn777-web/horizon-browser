@@ -1,0 +1,30 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:default}
+body{
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;color:#e8e8ee;
+  background:radial-gradient(120% 90% at 50% 0%,#17203a 0%,#0b0c10 62%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.07);
+}
+#drag{position:fixed;inset:0 0 auto 0;height:100%;-webkit-app-region:drag}
+main{position:relative;display:flex;flex-direction:column;align-items:center;width:100%;padding:0 44px;pointer-events:none}
+.logo{margin-bottom:10px;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.orbit{transform-origin:60px 60px;animation:spin 2.4s linear infinite}
+.halo{animation:pulse 2.4s ease-in-out infinite}
+.core{animation:breathe 2.4s ease-in-out infinite;transform-origin:60px 60px}
+h1{font-size:22px;font-weight:300;letter-spacing:.34em;text-indent:.34em;margin-bottom:18px;animation:rise .7s .08s cubic-bezier(.2,.8,.2,1) both}
+.status{font-size:13px;color:#c9cfe0;height:18px;transition:opacity .18s ease;text-align:center}
+.status.swap{opacity:0}
+.bar{width:100%;max-width:260px;height:4px;margin-top:14px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+.bar #fill{height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#7fb0ff);transition:width .15s linear}
+.bar.indeterminate #fill{position:absolute;width:38%;left:-38%;animation:slide 1.2s ease-in-out infinite}
+.bar.done #fill{width:100%;transition:width .3s ease}
+.bar.error #fill{background:#ef4444;width:100%}
+.detail{font-size:11px;color:#7b8296;margin-top:10px;height:14px;text-align:center}
+footer{position:fixed;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#4a5064}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{stroke-opacity:.10}50%{stroke-opacity:.26}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes slide{0%{left:-38%}100%{left:100%}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important}}

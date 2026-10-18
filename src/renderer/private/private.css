@@ -1,0 +1,167 @@
+/* ── Horizon Private Window — Completely Black Theme ── */
+
+:root {
+  --bg-deep:      #000000;
+  --bg-base:      #080808;
+  --bg-surface:   #111116;
+  --bg-elevated:  #18181e;
+  --bg-hover:     #202028;
+  --bg-active:    #28282e;
+
+  /* Purple private accent */
+  --accent:       #a78bfa;
+  --accent-dim:   #7c5fc2;
+  --accent-glow:  rgba(167, 139, 250, 0.15);
+
+  --text-primary:   #d8d8e8;
+  --text-secondary: #808098;
+  --text-muted:     #484860;
+
+  --border: rgba(255, 255, 255, 0.05);
+  --border-focus: rgba(167, 139, 250, 0.5);
+}
+
+body.private {
+  background: #000;
+}
+
+/* Private badge in titlebar */
+#private-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #a78bfa;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0 12px;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+/* Override titlebar padding — badge is on the left */
+#titlebar {
+  padding-left: 0;
+}
+
+#tabs-container {
+  flex: 1;
+  padding-left: 0;
+}
+
+/* Progress bar: purple */
+#progress-fill {
+  background: #a78bfa;
+}
+
+/* Private new tab page */
+#private-newtab {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.private-icon {
+  margin-bottom: 4px;
+}
+
+#private-newtab h1 {
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.private-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 420px;
+}
+
+.private-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.private-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+#private-search-wrapper {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  border-radius: 24px;
+  padding: 0 16px;
+  height: 46px;
+  gap: 10px;
+  margin-top: 8px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+#private-search-wrapper:focus-within {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+}
+
+#newtab-search {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  user-select: text;
+}
+
+#newtab-search::placeholder { color: var(--text-muted); }
+
+#newtab-search-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 120ms ease;
+}
+
+#newtab-search-btn:hover { color: #a78bfa; }
+
+/* Address bar: purple focus */
+#address-bar-wrapper:focus-within {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+}
+
+/* Tab close btn color in private */
+.tab.active { background: #111116; }
+
+/* Close btn: purple hover */
+#btn-close:hover {
+  background: #4a0080 !important;
+  color: #fff !important;
+}

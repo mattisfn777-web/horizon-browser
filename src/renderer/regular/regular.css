@@ -1,0 +1,12 @@
+/* Regular window accent: cool blue */
+.body.regular #address-bar-wrapper:focus-within {
+  border-color: var(--accent);
+}
+
+#btn-private {
+  color: var(--text-secondary);
+}
+
+#btn-private:hover {
+  color: #a78bfa;
+}

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http: https:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+<title>Horizon</title>
+<link rel="stylesheet" href="browser.css">
+</head>
+<body>
+<div id="app">
+  <!-- Titlebar -->
+  <div id="titlebar">
+    <div id="tabs-scroll">
+      <div id="tabs-list"></div>
+      <button id="new-tab-btn" title="New tab (Ctrl+T)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div id="titlebar-right">
+      <div id="private-badge">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M1.5 11c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Private
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <button class="nav-btn" id="btn-back" title="Back (Alt+←)" disabled>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-fwd" title="Forward (Alt+→)" disabled>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-reload" title="Reload (F5 / Ctrl+R)">
+      <svg id="reload-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M13.5 8A5.5 5.5 0 1 1 9 2.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <path d="M9 1v3h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <button class="nav-btn" id="btn-home" title="Home (Alt+Home)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.5 7.5L8 2.5l5.5 5M4 6.8V13h3V9.5h2V13h3V6.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div id="omnibox">
+      <svg id="ssl-icon" viewBox="0 0 16 16" fill="none"></svg>
+      <input id="url-input" type="text" spellcheck="false" autocomplete="off"
+             placeholder="Search or enter URL" aria-label="Address bar">
+      <button id="bookmark-btn" title="Bookmark (Ctrl+D)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path id="bookmark-path" d="M4 2h8a1 1 0 0 1 1 1v11l-5-3-5 3V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="toolbar-btn" id="btn-find" title="Find in page (Ctrl+F)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="toolbar-btn" id="btn-downloads" title="Downloads (Ctrl+J)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="toolbar-btn" id="btn-menu" title="Menu">
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <circle cx="8" cy="3" r="1.3" fill="currentColor"/>
+        <circle cx="8" cy="8" r="1.3" fill="currentColor"/>
+        <circle cx="8" cy="13" r="1.3" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress"><div id="progress-bar"></div></div>
+
+  <!-- Bookmarks bar -->
+  <div id="bookmarks-bar"></div>
+
+  <!-- Permission request -->
+  <div id="perm-bar" class="hidden">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.8v3.8M8 10.8v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span id="perm-text"></span>
+    <button class="perm-btn primary" id="perm-allow">Allow</button>
+    <button class="perm-btn" id="perm-block">Block</button>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+    <div id="error-page" class="hidden">
+      <div id="err-inner">
+        <svg width="46" height="46" viewBox="0 0 46 46" fill="none"><circle cx="23" cy="23" r="19" stroke="currentColor" stroke-width="2" opacity=".5"/><path d="M23 13v12M23 31v1.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <h2 id="err-title">This page can’t be reached</h2>
+        <p id="err-desc"></p>
+        <p id="err-url"></p>
+        <div id="err-actions"><button class="perm-btn primary" id="err-retry">Try again</button></div>
+        <code id="err-code"></code>
+      </div>
+    </div>
+    <div id="newtab">
+      <div id="nt-inner">
+        <div id="nt-logo">
+          <svg width="42" height="42" viewBox="0 0 42 42" fill="none">
+            <circle cx="21" cy="21" r="18" class="ring" stroke-width="1.5" opacity="0.35"/>
+            <circle cx="21" cy="21" r="6" class="core" opacity="0.9"/>
+            <ellipse cx="21" cy="21" rx="18" ry="7" class="ring" stroke-width="1" opacity="0.25"/>
+          </svg>
+          <span>Horizon</span>
+        </div>
+        <div class="nt-search">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input id="nt-search-input" type="text" placeholder="Search or enter a URL" autocomplete="off">
+          <button id="nt-search-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="nt-section" id="nt-bm-section">
+          <div class="nt-label">Bookmarks</div>
+          <div id="nt-bookmarks"></div>
+        </div>
+        <div class="nt-section" id="nt-hist-section">
+          <div class="nt-label">Recent</div>
+          <div id="nt-history"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="priv-newtab">
+      <div id="priv-inner">
+        <div id="priv-icon">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+            <circle cx="26" cy="26" r="22" stroke-width="1.2" opacity="0.3"/>
+            <circle cx="26" cy="20" r="8" stroke-width="1.8"/>
+            <path d="M8 46c0-9.9 8.1-18 18-18s18 8.1 18 18" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="priv-title">Private Window</div>
+        <div class="priv-desc">Your browsing history, cookies, and session data won't be saved. JavaScript is disabled by default. Data is cleared when you close this window.</div>
+        <div class="priv-pills">
+          <div class="priv-pill"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>No history saved</div>
+          <div class="priv-pill"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Isolated session — cookies don't cross</div>
+          <div class="priv-pill"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>JavaScript disabled</div>
+          <div class="priv-pill"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>All data cleared on close</div>
+        </div>
+        <div class="priv-js" id="priv-js-row">
+          <div class="priv-js-text"><strong>JavaScript</strong><span id="priv-js-state">Off — most sites load, but scripts don’t run</span></div>
+          <label class="toggle"><input type="checkbox" id="priv-js-toggle"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="nt-search" style="max-width:380px;width:100%;margin-top:8px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input id="priv-search-input" type="text" placeholder="Search or enter a URL" autocomplete="off">
+          <button id="priv-search-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Suggestions dropdown -->
+<div id="suggestions"></div>
+
+<!-- Find bar -->
+<div id="find-bar">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M8.5 8.5L12 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+  <input id="find-input" type="text" placeholder="Find in page…" autocomplete="off">
+  <span id="find-count"></span>
+  <button class="find-btn" id="find-prev" title="Previous (Shift+Enter)" disabled>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 8L6 5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="find-btn" id="find-next" title="Next (Enter)" disabled>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="find-btn" id="find-close">
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<!-- Main menu -->
+<div class="menu" id="main-menu">
+  <div class="menu-item" id="mm-new-tab"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>New Tab<span class="menu-right">Ctrl+T</span></div>
+  <div class="menu-item" id="mm-new-private"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>New Private Window<span class="menu-right">Ctrl+Shift+N</span></div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" id="mm-bookmarks"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 1h8a1 1 0 0 1 1 1v10l-4-2.5L4 12V2a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Bookmarks<span class="menu-right">Ctrl+Shift+B</span></div>
+  <div class="menu-item" id="mm-history"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5L9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>History<span class="menu-right">Ctrl+H</span></div>
+  <div class="menu-item" id="mm-downloads"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4.5 6.5L7 9l2.5-2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Downloads<span class="menu-right">Ctrl+J</span></div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" id="mm-zoom-out"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6.5h4M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Zoom Out<span class="menu-right">Ctrl+−</span></div>
+  <div class="menu-item" id="mm-zoom-in"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6.5h4M6.5 4.5v4M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Zoom In<span class="menu-right">Ctrl++</span></div>
+  <div class="menu-item" id="mm-zoom-reset">Reset Zoom<span class="menu-right">Ctrl+0</span></div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" id="mm-print"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3.5 5V1.5h7V5M3.5 10H1.5V5h11v5h-2M3.5 8h7v4.5h-7z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Print…<span class="menu-right">Ctrl+P</span></div>
+  <div class="menu-item" id="mm-devtools"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4.5 3.5L1.5 7l3 3.5M9.5 3.5L12.5 7l-3 3.5M8 2.5L6 11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Developer tools<span class="menu-right">F12</span></div>
+  <div class="menu-item" id="mm-find"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9 9l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Find in Page<span class="menu-right">Ctrl+F</span></div>
+  <div class="menu-item" id="mm-settings"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.8 2.8l1.4 1.4M9.8 9.8l1.4 1.4M2.8 11.2l1.4-1.4M9.8 4.2l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Settings<span class="menu-right">Ctrl+,</span></div>
+</div>
+
+<!-- Bookmarks sidebar -->
+<div class="sidebar" id="sidebar-bookmarks">
+  <div class="sidebar-header">
+    <span class="sidebar-title">Bookmarks</span>
+    <button class="sidebar-action" id="bm-add-current">+ Add current</button>
+    <button class="sidebar-close">×</button>
+  </div>
+  <div class="sidebar-search"><input type="text" placeholder="Search bookmarks…" id="bm-search" autocomplete="off"></div>
+  <div class="sidebar-body" id="bm-list"></div>
+</div>
+
+<!-- History sidebar -->
+<div class="sidebar" id="sidebar-history">
+  <div class="sidebar-header">
+    <span class="sidebar-title">History</span>
+    <button class="sidebar-action" id="hist-clear-all">Clear all</button>
+    <button class="sidebar-close">×</button>
+  </div>
+  <div class="sidebar-search"><input type="text" placeholder="Search history…" id="hist-search" autocomplete="off"></div>
+  <div class="sidebar-body" id="hist-list"></div>
+</div>
+
+<!-- Downloads sidebar -->
+<div class="sidebar" id="sidebar-downloads">
+  <div class="sidebar-header">
+    <span class="sidebar-title">Downloads</span>
+    <button class="sidebar-action" id="dl-clear-all">Clear</button>
+    <button class="sidebar-close">×</button>
+  </div>
+  <div class="sidebar-body" id="dl-list"></div>
+</div>
+
+<!-- Settings sidebar -->
+<div class="sidebar" id="settings-panel" style="width:480px;flex-direction:row">
+  <div class="settings-nav">
+    <div class="settings-nav-item active" data-section="general">General</div>
+    <div class="settings-nav-item" data-section="appearance">Appearance</div>
+    <div class="settings-nav-item" data-section="privacy">Privacy</div>
+    <div class="settings-nav-item" data-section="shortcuts">Shortcuts</div>
+    <div class="settings-nav-item" data-section="about">About</div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="sidebar-header" style="border-bottom:1px solid var(--border)">
+      <span class="sidebar-title">Settings</span>
+      <button class="sidebar-close">×</button>
+    </div>
+
+    <!-- General -->
+    <div class="settings-section" id="sec-general">
+      <div class="settings-group">
+        <div class="settings-group-title">Search & Navigation</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Search engine</div></div>
+          <select class="s-select" id="s-search-engine">
+            <option value="google">Google</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="brave">Brave Search</option>
+            <option value="ecosia">Ecosia</option>
+            <option value="startpage">Startpage</option>
+            <option value="bing">Bing</option>
+            <option value="yahoo">Yahoo</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Home page</div></div>
+          <input class="s-input" id="s-home-page" type="text" placeholder="https://…">
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">New tab page</div></div>
+          <select class="s-select" id="s-newtab-page">
+            <option value="default">Horizon (bookmarks + history)</option>
+            <option value="blank">Blank</option>
+            <option value="home">Home page</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">On startup</div></div>
+          <select class="s-select" id="s-startup">
+            <option value="newtab">Open a new tab</option>
+            <option value="restore">Restore previous tabs</option>
+            <option value="home">Open home page</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Updates</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Check for updates on startup</div><div class="setting-sub">Updates come from GitHub releases</div></div>
+          <label class="toggle"><input type="checkbox" id="s-auto-update"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Bookmarks</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Show bookmarks bar</div><div class="setting-sub">Always visible below toolbar</div></div>
+          <label class="toggle"><input type="checkbox" id="s-bm-bar"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-section hidden" id="sec-appearance">
+      <div class="settings-group">
+        <div class="settings-group-title">Theme</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Color theme</div></div>
+          <select class="s-select" id="s-theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Accent color</div></div>
+          <div class="color-swatches">
+            <div class="swatch" data-color="#3b82f6" style="background:#3b82f6" title="Blue"></div>
+            <div class="swatch" data-color="#8b5cf6" style="background:#8b5cf6" title="Purple"></div>
+            <div class="swatch" data-color="#ec4899" style="background:#ec4899" title="Pink"></div>
+            <div class="swatch" data-color="#ef4444" style="background:#ef4444" title="Red"></div>
+            <div class="swatch" data-color="#f97316" style="background:#f97316" title="Orange"></div>
+            <div class="swatch" data-color="#22c55e" style="background:#22c55e" title="Green"></div>
+            <div class="swatch" data-color="#14b8a6" style="background:#14b8a6" title="Teal"></div>
+            <div class="swatch" data-color="#f59e0b" style="background:#f59e0b" title="Amber"></div>
+            <input type="color" id="s-accent-custom" style="display:none">
+            <div class="swatch-custom" id="swatch-custom-btn" title="Custom color">+</div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Interface font size</div></div>
+          <select class="s-select" id="s-font-size">
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="settings-section hidden" id="sec-privacy">
+      <div class="settings-group">
+        <div class="settings-group-title">Blocking</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Block trackers</div><div class="setting-sub">Blocks analytics & tracking domains</div></div>
+          <label class="toggle"><input type="checkbox" id="s-block-trackers" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Block ads</div><div class="setting-sub">Blocks common ad domains</div></div>
+          <label class="toggle"><input type="checkbox" id="s-block-ads"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Block third-party cookies</div><div class="setting-sub">May break some embedded logins</div></div>
+          <label class="toggle"><input type="checkbox" id="s-block-3p"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Private Mode</div>
+        <div class="setting-row">
+          <div><div class="setting-label">Allow JavaScript in private</div><div class="setting-sub">Disabled by default for safety</div></div>
+          <label class="toggle"><input type="checkbox" id="s-js-private"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Data</div>
+        <div class="setting-row">
+          <button class="danger-btn" id="s-clear-all">Clear all browsing data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="settings-section hidden" id="sec-shortcuts">
+      <div class="settings-group">
+        <div class="settings-group-title">Navigation</div>
+        <div class="setting-row"><div class="setting-label">New tab</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+T</span></div>
+        <div class="setting-row"><div class="setting-label">Close tab</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+W</span></div>
+        <div class="setting-row"><div class="setting-label">New private window</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Shift+N</span></div>
+        <div class="setting-row"><div class="setting-label">Reopen closed tab</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Shift+T</span></div>
+        <div class="setting-row"><div class="setting-label">Next tab</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Tab</span></div>
+        <div class="setting-row"><div class="setting-label">Previous tab</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Shift+Tab</span></div>
+        <div class="setting-row"><div class="setting-label">Go back</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Alt+←</span></div>
+        <div class="setting-row"><div class="setting-label">Go forward</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Alt+→</span></div>
+        <div class="setting-row"><div class="setting-label">Reload</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">F5 / Ctrl+R</span></div>
+        <div class="setting-row"><div class="setting-label">Hard reload</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Shift+R</span></div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Page & Address Bar</div>
+        <div class="setting-row"><div class="setting-label">Focus address bar</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+L or F6</span></div>
+        <div class="setting-row"><div class="setting-label">Bookmark page</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+D</span></div>
+        <div class="setting-row"><div class="setting-label">Find in page</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+F</span></div>
+        <div class="setting-row"><div class="setting-label">Zoom in</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl++</span></div>
+        <div class="setting-row"><div class="setting-label">Zoom out</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+−</span></div>
+        <div class="setting-row"><div class="setting-label">Reset zoom</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+0</span></div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Panels</div>
+        <div class="setting-row"><div class="setting-label">Bookmarks</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+Shift+B</span></div>
+        <div class="setting-row"><div class="setting-label">History</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+H</span></div>
+        <div class="setting-row"><div class="setting-label">Downloads</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+J</span></div>
+        <div class="setting-row"><div class="setting-label">Settings</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Ctrl+,</span></div>
+        <div class="setting-row"><div class="setting-label">Close panel / stop</div><span style="font-family:monospace;font-size:12px;color:var(--t3)">Escape</span></div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="settings-section hidden" id="sec-about">
+      <div class="settings-group">
+        <div class="settings-group-title">Horizon Browser</div>
+        <div class="setting-row"><div class="setting-label">Version</div><span id="about-version" style="color:var(--t3);font-size:13px">—</span></div>
+        <div class="setting-row"><div class="setting-label">Chromium</div><span id="about-chromium" style="color:var(--t3);font-size:13px">—</span></div>
+        <div class="setting-row"><div class="setting-label">Electron</div><span id="about-electron" style="color:var(--t3);font-size:13px">—</span></div>
+        <div class="setting-row"><div class="setting-label">License</div><span style="color:var(--t3);font-size:13px">MIT</span></div>
+      </div>
+      <div class="settings-group">
+        <div class="settings-group-title">Updates</div>
+        <div class="setting-row">
+          <div><div class="setting-label" id="upd-status">Check for the latest version</div><div class="setting-sub" id="upd-sub"></div></div>
+          <button class="sidebar-action" id="upd-btn">Check now</button>
+        </div>
+        <div class="dl-progress hidden" id="upd-progress"><div class="dl-progress-fill" id="upd-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar overlay -->
+<div id="sidebar-overlay"></div>
+
+<!-- Status bar -->
+<div id="statusbar"></div>
+
+<div class="menu" id="ctx-menu"></div>
+<div id="toasts"></div>
+
+<!-- Boot screen -->
+<div id="boot"><div class="boot-logo"><svg viewBox="0 0 120 120" width="64" height="64"><circle class="boot-ring" cx="60" cy="60" r="50" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="80 235"/><circle cx="60" cy="60" r="20" fill="currentColor"/></svg></div></div>
+<script src="../shared/shortcuts.js"></script>
+<script src="browser.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+<title>Horizon</title>
+<link rel="stylesheet" href="splash.css">
+</head>
+<body>
+  <div id="drag"></div>
+  <main>
+    <div class="logo" id="logo">
+      <svg viewBox="0 0 120 120" width="104" height="104" aria-hidden="true">
+        <defs>
+          <radialGradient id="core" cx="40%" cy="38%" r="70%">
+            <stop offset="0" stop-color="#6ea8ff"/>
+            <stop offset="1" stop-color="#2f62d8"/>
+          </radialGradient>
+          <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7fb0ff"/>
+            <stop offset="1" stop-color="#3b6fe0"/>
+          </linearGradient>
+        </defs>
+        <circle class="halo" cx="60" cy="60" r="52" fill="none" stroke="#3b82f6" stroke-opacity=".18" stroke-width="10"/>
+        <circle class="orbit" cx="60" cy="60" r="52" fill="none" stroke="url(#ring)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 237"/>
+        <line x1="14" y1="60" x2="106" y2="60" stroke="#4d7fe0" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/>
+        <circle class="core" cx="60" cy="60" r="24" fill="url(#core)"/>
+      </svg>
+    </div>
+    <h1>Horizon</h1>
+    <p id="status" class="status">Starting…</p>
+    <div id="bar" class="bar indeterminate"><div id="fill"></div></div>
+    <p id="detail" class="detail">&nbsp;</p>
+  </main>
+  <footer><span id="ver"></span></footer>
+  <script src="splash.js"></script>
+</body>
+</html>
