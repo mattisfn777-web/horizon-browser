@@ -1,0 +1,42 @@
+appId: com.horizon.browser
+productName: Horizon
+copyright: Copyright © 2026 Horizon Browser
+
+directories:
+  output: dist
+  buildResources: assets
+
+files:
+  - src/**/*
+  - assets/**/*
+  - package.json
+
+asar: true
+compression: normal
+
+win:
+  icon: assets/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  requestedExecutionLevel: asInvoker
+
+# One-click installer: shows a branded progress window while installing,
+# installs per-user (no admin prompt) and launches Horizon when done.
+# The auto-updater runs this same installer silently.
+nsis:
+  oneClick: true
+  perMachine: false
+  runAfterFinish: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Horizon
+  deleteAppDataOnUninstall: false
+  artifactName: Horizon-Setup-${version}.${ext}
+
+portable:
+  artifactName: Horizon-Portable-${version}.${ext}
+
+publish: null

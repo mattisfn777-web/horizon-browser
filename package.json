@@ -1,0 +1,25 @@
+{
+  "name": "horizon-browser",
+  "version": "1.0.0",
+  "description": "Horizon - a fast, private, Chromium-based browser",
+  "main": "src/main/index.js",
+  "author": "Horizon Browser",
+  "license": "MIT",
+  "private": true,
+  "horizon": {
+    "githubOwner": "mattisfn777",
+    "githubRepo": "horizon-browser"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder --win --x64 --publish never",
+    "build:installer": "electron-builder --win nsis --x64 --publish never",
+    "build:portable": "electron-builder --win portable --x64 --publish never",
+    "pack": "electron-builder --dir --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3"
+  }
+}
